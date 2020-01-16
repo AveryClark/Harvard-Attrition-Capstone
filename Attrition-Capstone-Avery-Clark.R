@@ -82,6 +82,8 @@ if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-
 if(!require(rmarkdown)) install.packages("rmarkdown", repos = "http://cran.us.r-project.org")
 if(!require(readr)) install.packages("readr", repos = "http://cran.us.r-project.org")
 if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.org")
+if(!require(pROC)) install.packages("pROC", repos = "http://cran.us.r-project.org")
+if(!require(rpart.plot)) install.packages("rpart.plot", repos = "http://cran.us.r-project.org")
 library(caret)
 library(data.table)
 library(dotwhisker)
@@ -89,6 +91,8 @@ library(tidyverse)
 library(rmarkdown)
 library(readr)
 library(rpart)
+library(pROC)
+library(rpart.plot)
 
 
 wd <- getwd()
@@ -159,11 +163,15 @@ summary(allCovariatesEffectsMR)
 modcoef <- summary(allCovariatesEffectsMR)[["coefficients"]]
 modcoef[order(modcoef[ , 4]), ] 
 
+topFactors <- modcoef[order(modcoef[ , 4]), ]
+topFactors[1:10,4]
+topFactors[1:10,0]
 
 # By sorting by p-value, we can see that according to our multiple reggression analysis, the factors with 
 # the greatest significance on attrition (in order) are: 
 # OverTime, EnvironmentSatisfaction, JobSatisfaction, JobInvolvement, 
-# BusinessTravel, NumCompaniesWorked, MaritalStatus, DistanceFromHome, and JobRole.
+# BusinessTravel, NumCompaniesWorked, MaritalStatus, DistanceFromHome, JobRole,
+# and YearsSinceLastPromotion.
 
 
 # Note: When I tried to reach a higher accuracy level by using only some columns that 
@@ -171,10 +179,77 @@ modcoef[order(modcoef[ , 4]), ]
 # each type of analysis decide for itself which predictors to include from the entire list.
 
 
+
+
+
+# Now that we've seen what the most important factors
+# for predicting attrition are according to our 
+# multiple regression analysis, let's see what
+# they are according to a RPART (Recursive Partitioning 
+# And Regression Trees) analysis.
+
+
+# The RPART analysis works by splitting the data into groups like a big 
+# decision tree. It then makes its predictions per entry (or in our case,
+# per employee) based upon where the predictors fall in its decision 
+# tree path.
+
+
+CSV_HR_Attrition$Attrition <- as.factor(CSV_HR_Attrition$Attrition)
+ctrl <- trainControl(method = "cv", number = 2)
+
+tuneGrid.rpart <- expand.grid(
+  cp = c(.01, .03, .05)
+)
+
+CSV_HR_Attrition.train.rpart <- train(
+  y = CSV_HR_Attrition$Attrition, 
+  x = subset(CSV_HR_Attrition, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+
+plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# According to our RPART analysis, the most important 
+# factors in predicting attrition are:
+
+# MonthlyIncome, JobLevel, TotalWorkingYears,
+# OverTime, YearsAtCompany, JobRole,
+# and MaritalStatus.
+
+
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+
+# According to our RPART Analysis:
+
+# If an employee does NOT work overtime,
+# the probability they will leave the
+# company is 10%. This group accounts
+# for around 72% of our dataset.
+
+# If an employee DOES work overtime and
+# also makes $2475 or more per month,
+# the probability they will leave the
+# company is 23%. This group accounts
+# for around 24% of our dataset.
+
+# If an employee DOES work overtime and
+# also makes LESS THAN $2475 per month,
+# the probability they will leave the
+# company is 70%. This group accounts
+# for around 5% of our dataset.
+
+
+
+
 # Now we'll split our data into a training dataset and a validation dataset.
 
 # The testing set will be 10% of the data.
 
+CSV_HR_Attrition$Attrition <- as.double(CSV_HR_Attrition$Attrition)
 set.seed(1, sample.kind="Rounding")
 # if using R 3.5 or earlier, use `set.seed(1)` instead
 test_index <- createDataPartition(y = CSV_HR_Attrition$Attrition, times = 1, p = 0.1, list = FALSE)
@@ -189,7 +264,13 @@ head(testingSet)
 tibble(testingSet)
 str(testingSet)
 
+
+
+
 # Now let's build some prediction models and look at their accuracy.
+
+
+
 
 #################  Results  #################
 
