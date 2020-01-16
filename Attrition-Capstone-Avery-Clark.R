@@ -249,7 +249,8 @@ rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("p
 
 # The testing set will be 10% of the data.
 
-CSV_HR_Attrition$Attrition <- as.double(CSV_HR_Attrition$Attrition)
+
+CSV_HR_Attrition$Attrition <- ifelse(CSV_HR_Attrition$Attrition==1, 0, 1)[CSV_HR_Attrition$Attrition]
 set.seed(1, sample.kind="Rounding")
 # if using R 3.5 or earlier, use `set.seed(1)` instead
 test_index <- createDataPartition(y = CSV_HR_Attrition$Attrition, times = 1, p = 0.1, list = FALSE)
