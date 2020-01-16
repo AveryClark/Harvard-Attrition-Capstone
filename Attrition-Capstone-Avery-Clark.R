@@ -1,45 +1,3 @@
-# Attrition Capstone
-
-# Set Relative Work directory
-
-#################  Instructions  #################
-
-# For this project, you will be applying machine learning techniques that go beyond standard linear regression. 
-# You will have the opportunity to use a publicly available dataset to solve the problem of your choice.
-
-# Kaggle also maintains a curated list of datasets that are cleaned and ready for machine learning analyses. 
-# Your dataset must be automatically downloaded in your code or included with your submission. 
-
-
-
-# Choose Your Own Instructions
-# The submission for the choose-your-own project will be three files: a report in the form of both a PDF 
-# document and Rmd file and the R script that performs your machine learning task. You must also provide 
-# access to your dataset, either through automatic download in your script or inclusion in a GitHub repository. 
-
-# We recommend submitting a link to a GitHub # repository with these three files and your dataset. 
-# Your grade for the project will be based on your report 
-# and your script.
-
-
-# a report in both PDF and Rmd format and an R script in R format.
-
-# 20 points: The report includes all required sections and is easy to follow, but with minor flaws 
-# in one section.
-
-# 25 points: The report includes all required sections, is easy to follow with good supporting 
-# detail throughout, and is insightful and innovative.
-
-
-# 15 points: Code runs, can be followed, is at least mostly consistent with the report, 
-# but is lacking (sufficient) comments and explanation OR uses absolute paths instead 
-# of relative paths OR does not automatically install missing packages OR does not provide 
-# easy access to the dataset (either via automatic download or inclusion in a GitHub repository).
-
-# 20 points: Code runs easily, is easy to follow, is consistent with the report, and is well-commented. 
-# All file paths are relative and missing packages are automatically installed with if(!require) statements.
-
-
 
 #################  Executive Summary  #################
 
@@ -122,25 +80,37 @@ if(!require(data.table)) install.packages("data.table", repos = "http://cran.us.
 if(!require(dotwhisker)) install.packages("dotwhisker", repos = "http://cran.us.r-project.org")
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(rmarkdown)) install.packages("rmarkdown", repos = "http://cran.us.r-project.org")
+if(!require(readr)) install.packages("readr", repos = "http://cran.us.r-project.org")
+if(!require(rpart)) install.packages("rpart", repos = "http://cran.us.r-project.org")
 library(caret)
 library(data.table)
 library(dotwhisker)
 library(tidyverse)
 library(rmarkdown)
+library(readr)
+library(rpart)
 
 
 wd <- getwd()
 
-# This is your working directory.
-wd
-
-# Please download the data from either of these links and put the CSV in your working directory:
-# https://github.com/AveryClark/Harvard-Attrition-Capstone/raw/master/HR-Employee-Attrition.csv
-# https://github.com/AveryClark/Harvard-Attrition-Capstone/raw/master/HR-Employee-Attrition.zip
+# Uncomment and run the next
+# line to see your working directory:
+# wd
 
 setwd(wd)
 
-CSV_HR_Attrition <- read.table(file = "HR-Employee-Attrition.csv", header = TRUE, sep = ",", quote = "/")
+# You can change this by editing the file path instead 
+# of using "wd".
+
+
+
+
+downloadedFile <- "https://raw.githubusercontent.com/AveryClark/Harvard-Attrition-Capstone/master/HR-Employee-Attrition.csv"
+
+CSV_HR_Attrition <- read_csv(url(downloadedFile))
+
+
+
 
 # Let's probe the data and see what we learn.
 head(CSV_HR_Attrition)
@@ -149,9 +119,10 @@ str(CSV_HR_Attrition)
 table(CSV_HR_Attrition$Attrition)
 
 
-as.factor(CSV_HR_Attrition$Over18)
-as.factor(CSV_HR_Attrition$EmployeeCount)
-as.factor(CSV_HR_Attrition$StandardHours)
+head(CSV_HR_Attrition$Over18)
+levels(as.factor(CSV_HR_Attrition$Over18))
+levels(as.factor(CSV_HR_Attrition$EmployeeCount))
+levels(as.factor(CSV_HR_Attrition$StandardHours))
 # I'll remove the "Over18," "EmployeeCount," and "StandardHours" columns since 
 # all the values are the same in each. You can see this by looking at each column's 
 # values as factors. These three have only one factor each.
@@ -167,13 +138,13 @@ tibble(CSV_HR_Attrition)
 # Factors are not allowed in the variable you're trying to predict for in multiple regression analysis, 
 # so I'll need to convert the Attrition variable into numeric form first.
 
+CSV_HR_Attrition$Attrition <- as.factor(CSV_HR_Attrition$Attrition)
+
 CSV_HR_Attrition$Attrition <- ifelse(CSV_HR_Attrition$Attrition=="Yes", 0, 1)[CSV_HR_Attrition$Attrition]
 
-CSV_HR_Attrition$BusinessTravel <- as.character(levels(CSV_HR_Attrition$BusinessTravel))[CSV_HR_Attrition$BusinessTravel]
-CSV_HR_Attrition$Department <- as.character(levels(CSV_HR_Attrition$Department))[CSV_HR_Attrition$Department]
 
 
-allCovariatesEffectsMR <- lm(Attrition ~ BusinessTravel + DailyRate + Department + DistanceFromHome
+allCovariatesEffectsMR <- lm(Attrition ~ Age + BusinessTravel + DailyRate + Department + DistanceFromHome
                              + Education + EducationField + EmployeeNumber + EnvironmentSatisfaction 
                              + Gender + HourlyRate + JobInvolvement + JobLevel 
                              + JobRole + JobSatisfaction + MaritalStatus + MonthlyIncome + MonthlyRate 
@@ -182,7 +153,9 @@ allCovariatesEffectsMR <- lm(Attrition ~ BusinessTravel + DailyRate + Department
                              + TrainingTimesLastYear + WorkLifeBalance + YearsAtCompany + YearsInCurrentRole 
                              + YearsSinceLastPromotion + YearsWithCurrManager, data=CSV_HR_Attrition)
 
+
 summary(allCovariatesEffectsMR)
+
 modcoef <- summary(allCovariatesEffectsMR)[["coefficients"]]
 modcoef[order(modcoef[ , 4]), ] 
 
@@ -373,7 +346,8 @@ matrixmodel03
 matrixmodel03$overall[1]
 model03_Acc <- matrixmodel03$overall[1]
 
-# Our Generalized Linear Model reached 89.11565% accuracy, which is the higher than the previous models.
+# Our Generalized Linear Model reached 89.11565% accuracy, which is 
+# higher than the previous models.
 
 cat(paste0("The third model has ", model03_Acc*100, "% accuracy."))
 
@@ -385,9 +359,11 @@ accuracyTestResultsList <- bind_rows(accuracyTestResultsList,
 # Let's see our final results:
 accuracyTestResultsList %>% knitr::kable()
 
-# The Generalized Linear Model has the highest prediction accuracy with 89.11565% accuracy.
+# The Generalized Linear Model has the highest prediction accuracy 
+# with 89.11565% accuracy.
 
-cat("The Generalized Linear Model has the highest prediction accuracy of all the models, with 89.11565% accuracy.")
+cat("The Generalized Linear Model has the highest prediction accuracy of all the models, 
+    with 89.11565% accuracy.")
 
 
 
