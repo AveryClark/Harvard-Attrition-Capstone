@@ -114,6 +114,10 @@ downloadedFile <- "https://raw.githubusercontent.com/AveryClark/Harvard-Attritio
 CSV_HR_Attrition <- read_csv(url(downloadedFile))
 
 
+# The next line sets a random seed
+# so that anyone else running this
+# code can replicate the same results.
+set.seed(1, sample.kind="Rounding")
 
 
 # Let's probe the data and see what we learn.
@@ -194,13 +198,16 @@ topFactors[1:10,0]
 # per employee) based upon where the predictors fall in its decision 
 # tree path.
 
-
 CSV_HR_Attrition$Attrition <- as.factor(CSV_HR_Attrition$Attrition)
-ctrl <- trainControl(method = "cv", number = 2)
+
+
+set.seed(1, sample.kind="Rounding")
 
 tuneGrid.rpart <- expand.grid(
-  cp = c(.01, .03, .05)
+  cp = seq(.01, .05, by = .005)
 )
+
+ctrl <- trainControl(method = "cv", number = 2)
 
 CSV_HR_Attrition.train.rpart <- train(
   y = CSV_HR_Attrition$Attrition, 
@@ -244,6 +251,76 @@ rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("p
 
 
 
+# Now let's repeat the RPART analysis, 
+# but with more tests to get better
+# detail and accuracy.
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "cv", number = 6)
+
+CSV_HR_Attrition.train.rpart <- train(
+  y = CSV_HR_Attrition$Attrition, 
+  x = subset(CSV_HR_Attrition, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+
+plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+
+
+# Now we can see that with more
+# tests, our RPART analysis has 
+# similar conclusions but more 
+# detail and more accuracy.
+
+
+
+
+
+
+
+
+# Just for good measure,
+# let's see what happens when
+# we have lots of tests.
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+CSV_HR_Attrition.train.rpart <- train(
+  y = CSV_HR_Attrition$Attrition, 
+  x = subset(CSV_HR_Attrition, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+
+plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+
+# Now we can reach conclusions that 
+# have more detail and accuracy.
+
+
+
 
 # Now we'll split our data into a training dataset and a validation dataset.
 
@@ -251,6 +328,9 @@ rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("p
 
 
 CSV_HR_Attrition$Attrition <- ifelse(CSV_HR_Attrition$Attrition==1, 0, 1)[CSV_HR_Attrition$Attrition]
+# The next line sets a random seed
+# so that anyone else running this
+# code can replicate the same results.
 set.seed(1, sample.kind="Rounding")
 # if using R 3.5 or earlier, use `set.seed(1)` instead
 test_index <- createDataPartition(y = CSV_HR_Attrition$Attrition, times = 1, p = 0.1, list = FALSE)
