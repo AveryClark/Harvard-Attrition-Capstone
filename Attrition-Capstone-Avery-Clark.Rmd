@@ -205,6 +205,8 @@ each type of analysis decide for itself which predictors to include from the ent
 
 
 
+
+
 Now that we've seen what the most important factors
 for predicting attrition are according to our 
 multiple regression analysis, let's see what
@@ -218,10 +220,99 @@ per employee) based upon where the predictors fall in its decision
 tree path.
 
 
+Before we begin the RPATH analysis,
+I'd like to clean up the JobRole
+variable by shortening the titles
+to make it nicer to present in our graphs.
 
 
 
 ```{r Analysis 02 b, include=TRUE}
+
+head(CSV_HR_Attrition$JobRole)
+jobRoleLevels <- as.factor(CSV_HR_Attrition$JobRole)
+levels(jobRoleLevels)
+
+
+for (i in length(CSV_HR_Attrition$JobRole)) {
+  print(i)
+}
+
+
+for (i in seq(1, length(CSV_HR_Attrition$JobRole), by=1)) {
+  
+  if(CSV_HR_Attrition$JobRole[i] == "Healthcare Representative") {
+    CSV_HR_Attrition$JobRole[i] <- "HC R"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Human Resources") {
+    CSV_HR_Attrition$JobRole[i] <- "HR"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Laboratory Technician") {
+    CSV_HR_Attrition$JobRole[i] <- "LT"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Manager") {
+    CSV_HR_Attrition$JobRole[i] <- "Mgr"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Manufacturing Director") {
+    CSV_HR_Attrition$JobRole[i] <- "MD"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Research Director") {
+    CSV_HR_Attrition$JobRole[i] <- "RD"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Research Scientist") {
+    CSV_HR_Attrition$JobRole[i] <- "R Sci"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Sales Executive") {
+    CSV_HR_Attrition$JobRole[i] <- "Sal Ex"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Sales Representative") {
+    CSV_HR_Attrition$JobRole[i] <- "Sal R"
+  }
+  
+}
+
+jobRoleLevelsAfter <- as.factor(CSV_HR_Attrition$JobRole)
+levels(jobRoleLevelsAfter)
+head(jobRoleLevelsAfter)
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Now on to the RPATH analysis.
+
+```{r Analysis 02 c, include=TRUE}
 
 CSV_HR_Attrition$Attrition <- as.factor(CSV_HR_Attrition$Attrition)
 
@@ -233,7 +324,6 @@ tuneGrid.rpart <- expand.grid(
 )
 
 ctrl <- trainControl(method = "cv", number = 2)
-
 
 CSV_HR_Attrition.train.rpart <- train(
   y = CSV_HR_Attrition$Attrition, 
@@ -257,9 +347,11 @@ and MaritalStatus.
 
 
 
-```{r Analysis 02 c, include=TRUE}
+```{r Analysis 02 d, include=TRUE}
 
-rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red"),
+           tweak = 1)
 
 ```
 
@@ -291,7 +383,7 @@ but with more tests to get better
 detail and accuracy.
 
 
-```{r Analysis 02 d, include=TRUE, warning=FALSE}
+```{r Analysis 02 e, include=TRUE, warning=FALSE}
 
 set.seed(1, sample.kind="Rounding")
 
@@ -313,7 +405,9 @@ CSV_HR_Attrition.train.rpart <- train(
 plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 
 
-rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red"),
+           tweak = 0.95)
 
 ```
 
@@ -322,10 +416,7 @@ tests, our RPART analysis has
 similar conclusions but more 
 detail and more accuracy.
 
-
-
-
-
+If you're confused about how to interpret this, look at the explanation of the first RPART plot above.
 
 
 
@@ -334,7 +425,7 @@ let's see what happens when
 we have lots of tests.
 
 
-```{r Analysis 02 e, include=TRUE, warning=FALSE}
+```{r Analysis 02 f, include=TRUE, warning=FALSE}
 
 set.seed(1, sample.kind="Rounding")
 
@@ -356,13 +447,15 @@ CSV_HR_Attrition.train.rpart <- train(
 plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 
 
-rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red"),
+           tweak = 0.95)
 
 ```
 Now we can reach conclusions that 
 have even more detail and accuracy.
 
-
+If you're confused about how to interpret this, look at the explanation of the first RPART plot above.
 
 
 

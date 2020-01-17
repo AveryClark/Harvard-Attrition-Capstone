@@ -198,6 +198,70 @@ topFactors[1:10,0]
 # per employee) based upon where the predictors fall in its decision 
 # tree path.
 
+
+# Before we begin the RPATH analysis,
+# I'd like to clean up the JobRole
+# variable by shortening the titles
+# to make it nicer to present in our graphs.
+
+head(CSV_HR_Attrition$JobRole)
+jobRoleLevels <- as.factor(CSV_HR_Attrition$JobRole)
+levels(jobRoleLevels)
+
+
+for (i in length(CSV_HR_Attrition$JobRole)) {
+  print(i)
+}
+
+
+for (i in seq(1, length(CSV_HR_Attrition$JobRole), by=1)) {
+  
+  if(CSV_HR_Attrition$JobRole[i] == "Healthcare Representative") {
+    CSV_HR_Attrition$JobRole[i] <- "HC R"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Human Resources") {
+    CSV_HR_Attrition$JobRole[i] <- "HR"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Laboratory Technician") {
+    CSV_HR_Attrition$JobRole[i] <- "LT"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Manager") {
+    CSV_HR_Attrition$JobRole[i] <- "Mgr"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Manufacturing Director") {
+    CSV_HR_Attrition$JobRole[i] <- "MD"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Research Director") {
+    CSV_HR_Attrition$JobRole[i] <- "RD"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Research Scientist") {
+    CSV_HR_Attrition$JobRole[i] <- "R Sci"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Sales Executive") {
+    CSV_HR_Attrition$JobRole[i] <- "Sal Ex"
+  } 
+  
+  else if(CSV_HR_Attrition$JobRole[i] == "Sales Representative") {
+    CSV_HR_Attrition$JobRole[i] <- "Sal R"
+  }
+  
+}
+
+jobRoleLevelsAfter <- as.factor(CSV_HR_Attrition$JobRole)
+levels(jobRoleLevelsAfter)
+head(jobRoleLevelsAfter)
+
+
+
+# Now on to the RPATH analysis.
+
 CSV_HR_Attrition$Attrition <- as.factor(CSV_HR_Attrition$Attrition)
 
 
@@ -228,7 +292,9 @@ plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 # and MaritalStatus.
 
 
-rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red"),
+           tweak = 1)
 
 # According to our RPART Analysis:
 
@@ -275,7 +341,9 @@ CSV_HR_Attrition.train.rpart <- train(
 plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 
 
-rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red"),
+           tweak = 1)
 
 
 # Now we can see that with more
@@ -283,9 +351,10 @@ rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("p
 # similar conclusions but more 
 # detail and more accuracy.
 
-
-
-
+# If you're confused about how to 
+# interpret this, look at the 
+# explanation of the first RPART 
+# plot above.
 
 
 
@@ -314,10 +383,18 @@ CSV_HR_Attrition.train.rpart <- train(
 plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 
 
-rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, box.palette = c("palegreen3", "palegreen1", "red"))
+rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red"),
+           tweak = 1)
 
 # Now we can reach conclusions that 
 # have more detail and accuracy.
+
+# If you're confused about how to 
+# interpret this, look at the 
+# explanation of the first RPART 
+# plot above.
+
 
 
 
