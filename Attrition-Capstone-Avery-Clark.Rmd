@@ -226,6 +226,8 @@ variable by shortening the titles
 to make it nicer to present in our graphs.
 
 
+This will also give us separate datasets for each job role, which we'll test for differences later.
+
 
 ```{r Analysis 02 b, include=TRUE}
 
@@ -234,47 +236,96 @@ jobRoleLevels <- as.factor(CSV_HR_Attrition$JobRole)
 levels(jobRoleLevels)
 
 
-for (i in length(CSV_HR_Attrition$JobRole)) {
-  print(i)
-}
-
-
 for (i in seq(1, length(CSV_HR_Attrition$JobRole), by=1)) {
   
   if(CSV_HR_Attrition$JobRole[i] == "Healthcare Representative") {
     CSV_HR_Attrition$JobRole[i] <- "HC R"
+    if(isFALSE(exists("dbSplit_HCRData"))) {
+      dbSplit_HCRData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_HCRData <- rbind(dbSplit_HCRData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Human Resources") {
     CSV_HR_Attrition$JobRole[i] <- "HR"
+    if(isFALSE(exists("dbSplit_HRData"))) {
+      dbSplit_HRData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_HRData <- rbind(dbSplit_HRData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Laboratory Technician") {
     CSV_HR_Attrition$JobRole[i] <- "LT"
+    if(isFALSE(exists("dbSplit_LTData"))) {
+      dbSplit_LTData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_LTData <- rbind(dbSplit_LTData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Manager") {
     CSV_HR_Attrition$JobRole[i] <- "Mgr"
+    if(isFALSE(exists("dbSplit_MgrData"))) {
+      dbSplit_MgrData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_MgrData <- rbind(dbSplit_MgrData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Manufacturing Director") {
     CSV_HR_Attrition$JobRole[i] <- "MD"
+    if(isFALSE(exists("dbSplit_MDData"))) {
+      dbSplit_MDData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_MDData <- rbind(dbSplit_MDData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Research Director") {
     CSV_HR_Attrition$JobRole[i] <- "RD"
+    if(isFALSE(exists("dbSplit_RDData"))) {
+      dbSplit_RDData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_RDData <- rbind(dbSplit_RDData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Research Scientist") {
     CSV_HR_Attrition$JobRole[i] <- "R Sci"
+    if(isFALSE(exists("dbSplit_RSciData"))) {
+      dbSplit_RSciData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_RSciData <- rbind(dbSplit_RSciData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Sales Executive") {
     CSV_HR_Attrition$JobRole[i] <- "Sal Ex"
+    if(isFALSE(exists("dbSplit_SalExData"))) {
+      dbSplit_SalExData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_SalExData <- rbind(dbSplit_SalExData, CSV_HR_Attrition[i,]) 
+    }
   } 
   
   else if(CSV_HR_Attrition$JobRole[i] == "Sales Representative") {
     CSV_HR_Attrition$JobRole[i] <- "Sal R"
+    if(isFALSE(exists("dbSplit_SalRData"))) {
+      dbSplit_SalRData <- CSV_HR_Attrition[i,]
+    }
+    else {
+      dbSplit_SalRData <- rbind(dbSplit_SalRData, CSV_HR_Attrition[i,]) 
+    }
   }
   
 }
@@ -285,26 +336,6 @@ head(jobRoleLevelsAfter)
 
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -458,6 +489,357 @@ have even more detail and accuracy.
 If you're confused about how to interpret this, look at the explanation of the first RPART plot above.
 
 
+
+
+
+
+Now let's run the same analysis but looking at job roles separately, instead of all job roles together.
+
+
+```{r Analysis 02 g, include=TRUE, warning=FALSE}
+
+
+
+# Sales Executive:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_SalExData$Attrition, 
+  x = subset(dbSplit_SalExData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Sales Executive:
+
+plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Sales Executive:
+
+rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Healthcare Representative:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_HCRData$Attrition, 
+  x = subset(dbSplit_HCRData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Healthcare Representative:
+
+plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Healthcare Representative:
+
+rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Human Resources:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_HRData$Attrition, 
+  x = subset(dbSplit_HRData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Human Resources:
+
+plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Human Resources:
+
+rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Laboratory Technician:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_LTData$Attrition, 
+  x = subset(dbSplit_LTData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Laboratory Technician:
+
+plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Laboratory Technician:
+
+rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Manager:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_MgrData$Attrition, 
+  x = subset(dbSplit_MgrData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Manager:
+
+plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Manager:
+
+rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Manufacturing Director:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_MDData$Attrition, 
+  x = subset(dbSplit_MDData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Manufacturing Director:
+
+plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Manufacturing Director:
+
+rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Research Director:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit7_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_RDData$Attrition, 
+  x = subset(dbSplit_RDData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Research Director:
+
+plot(varImp(jobRoleSplit7_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Research Director:
+
+rpart.plot(jobRoleSplit7_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Research Scientist:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit8_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_RSciData$Attrition, 
+  x = subset(dbSplit_RSciData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Research Scientist:
+
+plot(varImp(jobRoleSplit8_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Research Scientist:
+
+rpart.plot(jobRoleSplit8_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "red1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Sales Executive:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit9_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_RDData$Attrition, 
+  x = subset(dbSplit_RDData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Sales Executive:
+
+plot(varImp(jobRoleSplit9_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Sales Executive:
+
+rpart.plot(jobRoleSplit9_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+
+
+
+
+# Now let's look at the Job Role of 
+# Sales Representative:
+
+set.seed(1, sample.kind="Rounding")
+
+tuneGrid.rpart <- expand.grid(
+  cp = seq(.01, .05, by = .005)
+)
+
+ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
+
+jobRoleSplit10_CSV_HR_Attrition.train.rpart <- train(
+  y = dbSplit_SalRData$Attrition, 
+  x = subset(dbSplit_SalRData, select = -Attrition), 
+  method = "rpart", 
+  trControl = ctrl, 
+  tuneGrid = tuneGrid.rpart, 
+  na.action = na.pass)
+
+# Sales Representative:
+
+plot(varImp(jobRoleSplit10_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
+
+# Sales Representative:
+
+rpart.plot(jobRoleSplit10_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
+           tweak = 1)
+
+
+
+
+```
 
 
 
