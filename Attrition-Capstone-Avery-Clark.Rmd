@@ -381,7 +381,7 @@ and MaritalStatus.
 ```{r Analysis 02 d, include=TRUE}
 
 rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
-           box.palette = c("palegreen3", "palegreen1", "red"),
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
 ```
@@ -437,7 +437,7 @@ plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 
 
 rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
-           box.palette = c("palegreen3", "palegreen1", "red"),
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 0.95)
 
 ```
@@ -479,7 +479,7 @@ plot(varImp(CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
 
 
 rpart.plot(CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
-           box.palette = c("palegreen3", "palegreen1", "red"),
+           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 0.95)
 
 ```
@@ -496,11 +496,9 @@ If you're confused about how to interpret this, look at the explanation of the f
 Now let's run the same analysis but looking at job roles separately, instead of all job roles together.
 
 
+Let's start with the job role of Sales Executive:
+
 ```{r Analysis 02 g, include=TRUE, warning=FALSE}
-
-
-
-# Sales Executive:
 
 set.seed(1, sample.kind="Rounding")
 
@@ -528,12 +526,13 @@ rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Sales Executive job role.")
 
 
 
-
-# Now let's look at the Job Role of 
-# Healthcare Representative:
+cat("Now let's look at the Job Role of 
+ Healthcare Representative:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -561,12 +560,13 @@ rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Healthcare Representative job role.")
 
 
 
-
-# Now let's look at the Job Role of 
-# Human Resources:
+cat("Now let's look at the Job Role of 
+ Human Resources:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -594,13 +594,13 @@ rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Human Resources job role.")
 
 
 
-
-
-# Now let's look at the Job Role of 
-# Laboratory Technician:
+cat("Now let's look at the Job Role of 
+ Laboratory Technician:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -628,13 +628,13 @@ rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Laboratory Technician job role.")
 
 
 
-
-
-# Now let's look at the Job Role of 
-# Manager:
+cat("Now let's look at the Job Role of 
+ Manager:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -662,13 +662,13 @@ rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Manager job role.")
 
 
 
-
-
-# Now let's look at the Job Role of 
-# Manufacturing Director:
+cat("Now let's look at the Job Role of 
+ Manufacturing Director:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -696,14 +696,13 @@ rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Manufacturing Director job role.")
 
 
 
-
-
-
-# Now let's look at the Job Role of 
-# Research Director:
+cat("Now let's look at the Job Role of 
+ Research Director:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -731,13 +730,13 @@ rpart.plot(jobRoleSplit7_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Research Director job role.")
 
 
 
-
-
-# Now let's look at the Job Role of 
-# Research Scientist:
+cat("Now let's look at the Job Role of 
+ Research Scientist:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -765,14 +764,13 @@ rpart.plot(jobRoleSplit8_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "red1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Research Scientist job role.")
 
 
 
-
-
-
-# Now let's look at the Job Role of 
-# Sales Executive:
+cat("Now let's look at the Job Role of 
+ Sales Executive:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -800,15 +798,13 @@ rpart.plot(jobRoleSplit9_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Sales Executive job role.")
 
 
 
-
-
-
-
-# Now let's look at the Job Role of 
-# Sales Representative:
+cat("Now let's look at the Job Role of 
+ Sales Representative:")
 
 set.seed(1, sample.kind="Rounding")
 
@@ -836,6 +832,8 @@ rpart.plot(jobRoleSplit10_CSV_HR_Attrition.train.rpart$finalModel, type = 5,
            box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
            tweak = 1)
 
+cat("That concludes the RPART analysis 
+ of the Sales Representative job role.")
 
 
 
