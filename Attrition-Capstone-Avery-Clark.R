@@ -477,18 +477,6 @@ jobRoleSplit_CSV_HR_Attrition.train.rpart <- train(
   tuneGrid = tuneGrid.rpart, 
   na.action = na.pass)
 
-# Sales Executive:
-
-plot(varImp(jobRoleSplit_CSV_HR_Attrition.train.rpart, scale = FALSE), 20)
-
-# Sales Executive:
-
-rpart.plot(jobRoleSplit_CSV_HR_Attrition.train.rpart$finalModel, type = 5, 
-           box.palette = c("palegreen3", "palegreen1", "pink1", "red"),
-           tweak = 1)
-
-
-
 
 
 # Healthcare Representative:
@@ -727,8 +715,8 @@ tuneGrid.rpart <- expand.grid(
 ctrl <- trainControl(method = "repeatedcv", number = 20, repeats = 5)
 
 jobRoleSplit9_CSV_HR_Attrition.train.rpart <- train(
-  y = dbSplit_RDData$Attrition, 
-  x = subset(dbSplit_RDData, select = -Attrition), 
+  y = dbSplit_SalExData$Attrition, 
+  x = subset(dbSplit_SalExData, select = -Attrition), 
   method = "rpart", 
   trControl = ctrl, 
   tuneGrid = tuneGrid.rpart, 
